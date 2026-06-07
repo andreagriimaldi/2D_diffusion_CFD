@@ -9,6 +9,7 @@ Partial Exam I
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import RegularGridInterpolator
 from time import time
 
 t0 = time()
@@ -38,7 +39,7 @@ assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
 assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 
 # Helpers
-config = 2   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
+config = 1   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
 def inSectorA(i, j):
     nAx = round(xLenA/dx)
     nAy = round(yLenA/dy)
@@ -208,10 +209,16 @@ plt.set_cmap('jet')
 plt.show()
 
 # Plotting diagonal figure
-diag_T = np.array([T_final[ny - 1 - i, i] for i in range(nx)])
-diag_s = np.array([np.hypot(xp[i] - xp[0], yp[ny - 1 - i] - yp[ny - 1]) for i in range(nx)])
+interp = RegularGridInterpolator((yp, xp), T_final, bounds_error=False, fill_value=None)
+N = 1000
+t = np.linspace(0, 1, N)
+x_line = 0.0  + t * (xLen - 0.0)
+y_line = yLen + t * (0.0  - yLen)
+pts = np.column_stack([y_line, x_line])
+T_line = interp(pts)
+s = np.hypot(x_line - x_line[0], y_line - y_line[0])
 plt.figure(2)
-plt.plot(diag_s, diag_T, '-o', markersize=3)
+plt.plot(s, T_line, '-', markersize=3)
 plt.xlabel('distance along diagonal [m]')
 plt.ylabel('temperature [°C]')
 plt.title('Temperature along the diagonal through sector A')
