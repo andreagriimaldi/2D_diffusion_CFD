@@ -34,13 +34,16 @@ assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
 assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 dx = xLen / nx # length of a single volume in x
 dy = yLen / ny # length of a single volume in y
-nVol = dx * dy
+nVol = nx * ny
 
 # Helpers
+config = 1   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
 def inSectorA(i, j):
-    nAx = round(xLenA/dx)
-    nAy = round(yLenA/dy)
-    return (i < nAx) and (j >= ny - nAy)
+    nAx = round(xLenA/dx); nAy = round(yLenA/dy)
+    if config == 1:
+        return (i < nAx) and (j >= ny - nAy)
+    else:
+        return (i >= nx - nAx) and (j < nAy)
 
 def cellK(i, j):
     return kA if inSectorA(i, j) else kB
@@ -154,17 +157,34 @@ time = t1 - t0
 
 ########################################################################################################################
 ########################################################################################################################
-# Post processing
+# Plotting figure
 plt.figure(1)
 X,Y = np.meshgrid(xp,yp)
 plt.contourf(X,Y,T_final,30)
-plt.title('Figure 1', fontsize=15)
+if config == 1:
+    plt.title('Figure 1', fontsize=15)
+else:
+    plt.title('Figure 2', fontsize=15)
 plt.xlabel('longitude x [m]')
 plt.ylabel('longitude y [m]')
 plt.xlim(0.0, xLen)
 plt.ylim(0.0, yLen)
 plt.grid(True)
 plt.colorbar()
-#plt.axis('equal')
 plt.set_cmap('jet')
 plt.show()
+
+# Print onscreen
+Tmax = T_final.max()
+Tmin = T_final.min()
+if config == 1:
+    print('\n------------------ First part (Figure 1) --------------------')
+else:
+    print('\n------------------ Second part (Figure 2) --------------------')
+print('                   n. of volumes = {} '.format(nVol))
+print('                   dx = {:1.4f} m'.format(dx))
+print('                   dy = {:1.4f} m'.format(dy))
+print('                   T max = {:1.2f} celsius'.format(Tmax))
+print('                   T min = {:1.2f} celsius'.format(Tmin))
+print('                   n. of iterations = {} '.format(iter))
+print('                   Machine time = {:1.1f} sec'.format(time))
