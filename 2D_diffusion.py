@@ -30,11 +30,12 @@ hb = 200 # W/m2/K
 # Derived parameters
 nx = 20 # number of volumes in the x direction
 ny = 20 # number of volumes in the y direction
-assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
-assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 dx = xLen / nx # length of a single volume in x
 dy = yLen / ny # length of a single volume in y
 nVol = nx * ny # number of volumes
+
+assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
+assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 
 # Helpers
 config = 1   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
@@ -189,7 +190,7 @@ for j in range(ny-1):
 
 ########################################################################################################################
 ########################################################################################################################
-# Plotting figure
+# Plotting contour figure
 plt.figure(1)
 X,Y = np.meshgrid(xp,yp)
 plt.contourf(X,Y,T_final,30)
@@ -204,6 +205,17 @@ plt.ylim(0.0, yLen)
 plt.grid(True)
 plt.colorbar()
 plt.set_cmap('jet')
+plt.show()
+
+# Plotting diagonal figure
+diag_T = np.array([T_final[ny - 1 - i, i] for i in range(nx)])
+diag_s = np.array([np.hypot(xp[i] - xp[0], yp[ny - 1 - i] - yp[ny - 1]) for i in range(nx)])
+plt.figure(2)
+plt.plot(diag_s, diag_T, '-o', markersize=3)
+plt.xlabel('distance along diagonal [m]')
+plt.ylabel('temperature [°C]')
+plt.title('Temperature along the diagonal through sector A')
+plt.grid(True)
 plt.show()
 
 # Print onscreen
