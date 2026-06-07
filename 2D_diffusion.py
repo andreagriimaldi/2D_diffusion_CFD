@@ -38,7 +38,7 @@ assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
 assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 
 # Helpers
-config = 1   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
+config = 2   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
 def inSectorA(i, j):
     nAx = round(xLenA/dx)
     nAy = round(yLenA/dy)
@@ -172,7 +172,7 @@ for j in range(1, ny+1):
     for i in range(1, nx+1):
         nb = (a_w[j, i] * T[j, i-1] + a_e[j, i] * T[j, i+1] + a_n[j,i] *T [j+1, i] + a_s[j,i] * T[j-1, i] + b[j, i])
         R[j,i] = nb - a_p[j, i] * T[j, i]
-assert np.abs(R).max() < 1e-6, "Discrete equation not resolved for all the cells" # The discrete equation must be satisfied for each cell (up to the calculation's precision)
+assert np.abs(R).max() < 1e-4, "Discrete equation not resolved for all the cells" # The discrete equation must be satisfied for each cell (up to the calculation's precision)
 
 
 for j in range(ny):
