@@ -25,7 +25,7 @@ kB = 550 # W/m/K
 qA = 5 * 10**5 # W/m3
 TS = 30 # Celsius
 TWE = 15 # Celsius
-hb = 200 # Wm2/K
+hb = 200 # W/m2/K
 
 # Derived parameters
 nx = 20 # number of volumes in the x direction
@@ -34,12 +34,13 @@ assert nx % 5 == 0, "The number of volumes in x must be a multiple of 5"
 assert ny % 5 == 0, "The number of volumes in y must be a multiple of 5"
 dx = xLen / nx # length of a single volume in x
 dy = yLen / ny # length of a single volume in y
-nVol = nx * ny
+nVol = nx * ny # number of volumes
 
 # Helpers
 config = 1   # 1 for case 1 (top-left), 2 for case 2 (bottom right)
 def inSectorA(i, j):
-    nAx = round(xLenA/dx); nAy = round(yLenA/dy)
+    nAx = round(xLenA/dx)
+    nAy = round(yLenA/dy)
     if config == 1:
         return (i < nAx) and (j >= ny - nAy)
     else:
@@ -123,6 +124,13 @@ for j in range(ny):
     a_p[j, nx - 1] += a_rob
     b[j, nx - 1] += a_rob * TWE
 
+
+# Scarborough criterion
+neighbors = a_w + a_e + a_n + a_s
+assert np.all(a_p > 0)
+assert np.all(a_p >= neighbors - 1e-9)
+assert np.any(a_p > neighbors + 1e-9)
+
 # Padding
 a_w = np.pad(a_w, 1)
 a_e = np.pad(a_e, 1)
@@ -154,6 +162,30 @@ T_final = T[1:ny+1, 1:nx+1].copy()
 
 t1 = time()
 time = t1 - t0
+
+########################################################################################################################
+########################################################################################################################
+# Validating the solution
+R = np.zeros((ny+2, nx+2))
+for j in range(1, ny+1):
+    for i in range(1, nx+1):
+        nb = (a_w[j, i] * T[j, i-1] + a_e[j, i] * T[j, i+1] + a_n[j,i] *T [j+1, i] + a_s[j,i] * T[j-1, i] + b[j, i])
+        R[j,i] = nb - a_p[j, i] * T[j, i]
+assert np.abs(R).max() < 1e-6, "Discrete equation not resolved for all the cells" # The discrete equation must be satisfied for each cell (up to the calculation's precision)
+
+
+for j in range(ny):
+    for i in range(nx-1):
+        assert abs(a_e[j + 1, i + 1] - a_w[j + 1, i + 2]) < 1e-9, f"E/W face mismatch at ({i},{j})" # Vertical face mismatch
+
+for j in range(ny-1):
+    for i in range(nx):
+        assert abs(a_n[j + 1, i + 1] - a_s[j + 2, i + 1]) < 1e-9, f"N/S face mismatch at ({i},{j})" # Horizontal face mismatch
+
+########################################################################################################################
+########################################################################################################################
+# Energy calculation
+
 
 ########################################################################################################################
 ########################################################################################################################
