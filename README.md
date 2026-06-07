@@ -16,9 +16,7 @@ Metal plate `10 × 10 × 1 cm` containing two metallic sectors:
 
 Governing equation (pure diffusion, no convection):
 
-```
-∂/∂x (k ∂T/∂x) + ∂/∂y (k ∂T/∂y) + q̇ = 0
-```
+$$\frac{\partial}{\partial x}\left(k\,\frac{\partial T}{\partial x}\right) + \frac{\partial}{\partial y}\left(k\,\frac{\partial T}{\partial y}\right) + \dot{q} = 0$$
 
 ### Boundary conditions
 
