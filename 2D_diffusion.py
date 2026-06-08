@@ -187,7 +187,29 @@ for j in range(ny-1):
 ########################################################################################################################
 ########################################################################################################################
 # Energy calculation
+qgen = qA * xLenA * yLenA * height  # Generated power
 
+Tsouth = T_final[0, :]
+Twest = T_final[: , 0]
+Teast = T_final[:, nx - 1]
+
+qs = 0
+area = dx * height
+for i in range(0, nx):
+    qs += cellK(i, 0) * ( (Tsouth[i] - TS) / (dy/2) ) * area   # Dirichlet boundary
+
+qw = 0
+area = dy * height
+for j in range(0, ny):
+    qw += ( (Twest[j] - TWE) / ( (dx/2) / cellK(0, j) +  1 / hb) ) * area   # Robin boundary (West)
+
+qe = 0
+area = dy * height
+for j in range(0, ny):
+    qe += ( (Teast[j] - TWE) / ( (dx/2) / cellK(nx - 1, j) +  1 / hb) ) * area   # Robin boundary (East)
+
+
+assert (abs(qgen - (qs + qw + qe)) / abs(qgen)) < 1e-3, "Stationary condition not satisfied"
 
 ########################################################################################################################
 ########################################################################################################################
@@ -237,5 +259,6 @@ print('                   dx = {:1.4f} m'.format(dx))
 print('                   dy = {:1.4f} m'.format(dy))
 print('                   T max = {:1.2f} celsius'.format(Tmax))
 print('                   T min = {:1.2f} celsius'.format(Tmin))
+print('                   Qgen = {:1.2f} W'.format(qgen))
 print('                   n. of iterations = {} '.format(iter))
 print('                   Machine time = {:1.1f} sec'.format(time))
