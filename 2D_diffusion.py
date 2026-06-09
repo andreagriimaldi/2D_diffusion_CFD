@@ -171,7 +171,7 @@ time = t1 - t0
 R = np.zeros((ny+2, nx+2))
 for j in range(1, ny+1):
     for i in range(1, nx+1):
-        nb = (a_w[j, i] * T[j, i-1] + a_e[j, i] * T[j, i+1] + a_n[j,i] *T [j+1, i] + a_s[j,i] * T[j-1, i] + b[j, i])
+        nb = (a_w[j, i] * T[j, i-1] + a_e[j, i] * T[j, i+1] + a_n[j,i] * T [j+1, i] + a_s[j,i] * T[j-1, i] + b[j, i])
         R[j,i] = nb - a_p[j, i] * T[j, i]
 assert np.abs(R).max() < 1e-4, "Discrete equation not resolved for all the cells" # The discrete equation must be satisfied for each cell (up to the calculation's precision)
 
